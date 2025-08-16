@@ -1,0 +1,67 @@
+# update packages
+sudo apt update && sudo apt upgrade -y
+
+# install nginx & check status
+sudo apt install nginx -y
+systemctl status nginx
+
+# Install Node.js & npm (latest LTS)
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+# this cmd install node js & npm both
+sudo apt install -y nodejs build-essential
+
+# Check version
+node -v
+npm -v
+
+# clone github repo
+git clone https://github.com/alamgirweb11/meals-app.git
+
+# rename file, for meaningful based on EC2 name
+mv meals-app vue-app
+
+# locate vue app
+cd vue-app
+
+# create Environment file for api setup
+nano .env
+# attach this end point and save .env file
+VITE_API_BASE_URL = 'https://www.themealdb.com/api/json/v1/1/'
+
+# now install npm and build
+# --legacy-peer-deps use for ignore old version package installations
+npm install --legacy-peer-deps
+npm run build
+
+# configure app in nginx
+sudo nano /etc/nginx/sites-available/vue-app
+
+# add config file & save
+server {
+    listen 80;
+    server_name _;
+
+    root /var/www/vue-app/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+# remove default config file
+sudo rm /etc/nginx/sites-enabled/default
+
+# create folder & copy build files
+sudo mkdir -p /var/www/vue-app
+sudo cp -r ~/vue-app/dist /var/www/vue-app/
+sudo cp -r ~/vue-app/dist /var/www/vue-app/
+
+# enable config
+sudo ln -s /etc/nginx/sites-available/vue-app /etc/nginx/sites-enabled/
+
+# test nginx config
+sudo nginx -t
+
+# restart nginx
+sudo systemctl restart nginx
