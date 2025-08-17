@@ -1,0 +1,20 @@
+# update packages
+sudo apt update && sudo apt upgrade -y
+
+# install nfs
+sudo apt install -y nfs-common
+
+# make directory where mount efs
+sudo mkdir -p /mnt/efs
+
+# mount efs
+sudo mount -t nfs4 -o nfsvers=4.1 <EFS-DNS-Name>:/ /mnt/efs
+
+# locate directory
+cd /mnt/efs
+
+# create file for testing
+sudo nano hello.txt
+
+# write something inside hello.txt file and save
+# try to access hello.txt file from another EC2 where also mount this EFS
